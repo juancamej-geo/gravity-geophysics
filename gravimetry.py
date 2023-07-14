@@ -13,11 +13,15 @@ def mainmenu():
             leer(ruta)
         case '2':
             input('-'*50+'\nDesarrollado por: Juan C. Mejía\nSoftware de uso académico\nPara más información consulte al correo juan.601823945@ucaldas.edu.co\n'+'-'*50)
+            os.system('cls')
+        case _:
+            input('Ingrese 1 o 2\n')
+            os.system('cls')
 
 
 
 def leer(inb):
-    global df_interpolated,df2,df3
+    global xi,yi,zi
     df = pd.read_excel(inb)
 
     x = df['x'].values
@@ -41,47 +45,82 @@ def leer(inb):
             case _:
                 input('Opción no válida.')
                 os.system('cls')
+                
 
     plt.contourf(xi, yi, zi, levels=20, cmap='RdYlBu'),plt.colorbar().set_label('mGal'),plt.xlabel('X'), plt.ylabel('Y')
     plt.title('Mapa de anomalía de Bouguer Corregida'), plt.show()
 
-    df_interpolated = pd.DataFrame({'x': xi.flatten(), 'y': yi.flatten(), 'z': zi.flatten()})
+#generar residual:
+
+def GeneraResidual():
+    dfres=pd.DataFrame()
+    dfreg=pd.DataFrame()
+    df_interpolated = pd.DataFrame({'x': xi.flatten(), 'y': yi.flatten(), 'z': zi.flatten()}) #se aplanan las matrices en un df
     df_interpolated.dropna(inplace=True)
     df2= df_interpolated['x'].value_counts().to_frame('counts').reset_index() #Obtiene los valores de x que se repiten
     df2.columns=['x','count'] #renombra columnas
     df3= df_interpolated['y'].value_counts().to_frame('counts').reset_index() #obtiene valores de x que se repiten
     df3.columns=['y','count']# renombra
 
-
-#generar residual:
-
-def GeneraResidual():
-    res=pd.read_csv(ruta, sep=' ')
-    
-    for i in df3['y']:
-        x1= np.array(df_interpolated[df_interpolated['y']==i]['x'])
-        y1=np.array(df_interpolated[df_interpolated['y']==i]['y'])
-        z1=np.array(df_interpolated[df_interpolated['y']==i]['z'])
+    while True:
+        preg=input('Desea perfiles horizontales o verticales?[h/v]\n')
+        match preg:
+            case 'h':
+                gi='x'
+                df4=df2[gi]
+                break
+            case 'v':
+                gi='y'
+                df4=df3[gi]
+                break
+            case _:
+                input('Ingrese una opción válida de perfiles\n')
+                os.system('cls')
+    for i in df4:
+        x1= np.array(df_interpolated[df_interpolated[gi]==i]['x'])
+        y1=np.array(df_interpolated[df_interpolated[gi]==i]['y'])
+        z1=np.array(df_interpolated[df_interpolated[gi]==i]['z'])
 
         x0= np.linspace(x1[0],x1[-1])
-        y0= np.linspace(y1[0],y1[-1])  #y constante
+        y0= np.linspace(y1[0],y1[-1])  #y constante OJO
         z0=np.linspace(z1[0],z1[-1])
-        for order in range(0,50):
-            model=np.polyfit(x1,z1,order)
-            evalua=np.polyval(model,x1)
-            reg= np.polyfit(x0,z0,1) #regional 
-            evareg= np.polyval(reg,x1) #regional 
+    match preg:
+        case 'h':
+            perf1=y1
+            perf0=y0
+        case 'v':
+            perf1=x1
+            perf0=x0
+        
+    for order in range(0,50):
+        model=np.polyfit(perf1,z1,order)
+        evalua=np.polyval(model,perf1) #Bouger
+        reg= np.polyfit(perf0,z0,1) 
+        evareg= np.polyval(reg,perf1) #regional 
 
-            if np.corrcoef(z1,evalua)[0,1]>=0.99: #coeficiente de correlacion R^2
-                dffinal=pd.DataFrame({'x':x1,'y':y1, 'z':evalua-evareg})  
-                       
-            else:
-                continue
-            res=res.append(dffinal, ignore_index=True )
-    return res.to_excel(ruta+'000.xlsx',index=False)
-
+        if np.corrcoef(z1,evalua)[0,1]>=0.90: #coeficiente de correlacion R^2
+            dfres=pd.DataFrame({'x':perf1,'y':y1, 'z':evalua-evareg}) 
+            dfreg=pd.DataFrame({'x':perf1,'y':y1, 'z':evareg})
+                    
+        else:
+            continue
+        dfres.append(dfres,ignore_index=True)
+        dfreg.append(dfreg,ignore_index=True)
+    return dfres.to_excel(ruta[:-5]+'residual.xlsx',index=False, inplace=True)
+"""         
+    m= dfres['x'].values
+    n=dfres['y'].values
+    o=dfres['z'].values
+    mi= np.linspace(min(m),max(m),100)
+    ni= np.linspace(min(n),max(n),100)
+    o= np.linspace(min(o),max(o),100)
+    mi,ni= np.meshgrid(mi,ni)
+    oi= griddata((m,n),o,(mi,ni),method='cubic')
+    plt.contourf(mi,ni,oi, cmap='RdYlBu'), plt.show()
+ """
 
 #esto es un test
 if __name__ =='__main__':
     while True:
         mainmenu()
+        GeneraResidual()
