@@ -22,10 +22,13 @@ def mainmenu():
             os.system('cls')
 
 
-
 def leer(inb):
     global xi,yi,zi
-    df = pd.read_excel(inb)
+    if type(inb)== type('hi'):
+        df = pd.read_excel(inb)
+        print('ok')
+    else:
+            df=inb
 
     x = df['x'].values
     y = df['y'].values
@@ -109,8 +112,9 @@ def GeneraResidual():
                 
             else:
                 continue
-
-    return dfreg.to_excel(ruta[:-5]+'-Regional.xlsx',index=False) , dfres.to_excel(ruta[:-5]+'-Residual.xlsx',index=False)
+    
+    
+    return leer(dfres),leer(dfreg),dfreg.to_excel(ruta[:-5]+'-Regional.xlsx',index=False) , dfres.to_excel(ruta[:-5]+'-Residual.xlsx',index=False)
 """         
     m= dfres['x'].values
     n=dfres['y'].values
