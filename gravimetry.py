@@ -3,7 +3,10 @@ import numpy as np
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 from tkinter import filedialog
-import os
+import os, warnings, time
+warnings.simplefilter('ignore',np.RankWarning)
+
+
 def mainmenu():
     global ruta
     ch=input('-'*10+ 'Menú principal'+ '-'*10+ '\nSeleccione una opción:\n1-Leer Archivo\n2-Información del software\n')
@@ -34,7 +37,7 @@ def leer(inb):
 
     zi = griddata((x, y), z, (xi, yi), method='cubic')
     while True:
-        match input('Desea mostrar los puntos cargados?[s/n]'):
+        match input('Desea mostrar los puntos cargados?[s/n]\n'):
             case 's':
                 plt.scatter(x, y, c='Black')
                 plt.show()
@@ -59,7 +62,7 @@ def GeneraResidual():
     df_interpolated.dropna(inplace=True)
     df2= df_interpolated['x'].value_counts().to_frame('counts').reset_index() #Obtiene los valores de x que se repiten
     df2.columns=['x','count'] #renombra columnas
-    df3= df_interpolated['y'].value_counts().to_frame('counts').reset_index() #obtiene valores de x que se repiten
+    df3= df_interpolated['y'].value_counts().to_frame('counts').reset_index() #obtiene valores de y que se repiten
     df3.columns=['y','count']# renombra
 
     while True:
@@ -84,29 +87,30 @@ def GeneraResidual():
         x0= np.linspace(x1[0],x1[-1])
         y0= np.linspace(y1[0],y1[-1])  #y constante OJO
         z0=np.linspace(z1[0],z1[-1])
-    match preg:
-        case 'h':
-            perf1=y1
-            perf0=y0
-        case 'v':
-            perf1=x1
-            perf0=x0
+        match preg:
+            case 'h':
+                perf1=y1
+                perf0=y0
+            case 'v':
+                perf1=x1
+                perf0=x0
         
-    for order in range(0,50):
-        model=np.polyfit(perf1,z1,order)
-        evalua=np.polyval(model,perf1) #Bouger
-        reg= np.polyfit(perf0,z0,1) 
-        evareg= np.polyval(reg,perf1) #regional 
+        for order in range(1,30):
+            model=np.polyfit(perf1,z1,order)
+            evalua=np.polyval(model,perf1) #Bouger
+            reg= np.polyfit(perf0,z0,1) 
+            evareg= np.polyval(reg,perf1) #regional 
 
-        if np.corrcoef(z1,evalua)[0,1]>=0.90: #coeficiente de correlacion R^2
-            dfres=pd.DataFrame({'x':perf1,'y':y1, 'z':evalua-evareg}) 
-            dfreg=pd.DataFrame({'x':perf1,'y':y1, 'z':evareg})
-                    
-        else:
-            continue
-        dfres.append(dfres,ignore_index=True)
-        dfreg.append(dfreg,ignore_index=True)
-    return dfres.to_excel(ruta[:-5]+'residual.xlsx',index=False, inplace=True)
+            if np.corrcoef(z1,evalua)[0,1]>=0.80: #coeficiente de correlacion R^2
+
+                dfres=dfres.append(pd.DataFrame({'x':x1,'y':y1, 'z':evalua-evareg}),ignore_index=True)
+                dfreg=dfreg.append(pd.DataFrame({'x':x1,'y':y1, 'z':evareg}),ignore_index=True)
+
+                
+            else:
+                continue
+
+    return dfreg.to_excel(ruta[:-5]+'-Regional.xlsx',index=False) , dfres.to_excel(ruta[:-5]+'-Residual.xlsx',index=False)
 """         
     m= dfres['x'].values
     n=dfres['y'].values
