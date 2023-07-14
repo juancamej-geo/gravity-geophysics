@@ -3,19 +3,22 @@ import numpy as np
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 from tkinter import filedialog
-
+import os
 def mainmenu():
     global ruta
     ch=input('-'*10+ 'Menú principal'+ '-'*10+ '\nSeleccione una opción:\n1-Leer Archivo\n2-Información del software\n')
-    ruta= filedialog.askopenfile(title='Ingrese el archivo', initialdir='C:/Users/PC/Desktop').name
-    if ch=='1':
-        leer(ruta)
+    match ch:
+        case '1':
+            ruta= filedialog.askopenfile(title='Ingrese el archivo', initialdir='C:/Users/PC/Documents',filetypes=[('Archivos Excel','.xlsx')]).name
+            leer(ruta)
+        case '2':
+            input('-'*50+'\nDesarrollado por: Juan C. Mejía\nSoftware de uso académico\nPara más información consulte al correo juan.601823945@ucaldas.edu.co\n'+'-'*50)
 
 
 
-def leer():
+def leer(inb):
     global df_interpolated,df2,df3
-    df = pd.read_excel(ruta)
+    df = pd.read_excel(inb)
 
     x = df['x'].values
     y = df['y'].values
@@ -26,13 +29,22 @@ def leer():
     xi, yi = np.meshgrid(xi, yi)
 
     zi = griddata((x, y), z, (xi, yi), method='cubic')
+    while True:
+        match input('Desea mostrar los puntos cargados?[s/n]'):
+            case 's':
+                plt.scatter(x, y, c='Black')
+                plt.show()
+                break
+            case 'n':
+                os.system('cls')
+                break
+            case _:
+                input('Opción no válida.')
+                os.system('cls')
 
-    plt.contourf(xi, yi, zi, levels=20, cmap='RdYlBu')
-    plt.colorbar().set_label('Anomalía de Bouguer Corregida')
-    plt.legend()
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.title('Mapa de anomalía de Bouguer Corregida')
+    plt.contourf(xi, yi, zi, levels=20, cmap='RdYlBu'),plt.colorbar().set_label('mGal'),plt.xlabel('X'), plt.ylabel('Y')
+    plt.title('Mapa de anomalía de Bouguer Corregida'), plt.show()
+
     df_interpolated = pd.DataFrame({'x': xi.flatten(), 'y': yi.flatten(), 'z': zi.flatten()})
     df_interpolated.dropna(inplace=True)
     df2= df_interpolated['x'].value_counts().to_frame('counts').reset_index() #Obtiene los valores de x que se repiten
@@ -40,11 +52,6 @@ def leer():
     df3= df_interpolated['y'].value_counts().to_frame('counts').reset_index() #obtiene valores de x que se repiten
     df3.columns=['y','count']# renombra
 
-    ch2= input('Desea mostrar los puntos cargados? [s/n]\n')
-    if ch2=='s':
-        plt.scatter(x, y, c='Black')
-        plt.show()
-    else: plt.show()
 
 #generar residual:
 
@@ -77,5 +84,4 @@ def GeneraResidual():
 #esto es un test
 if __name__ =='__main__':
     while True:
-        
-
+        mainmenu()
