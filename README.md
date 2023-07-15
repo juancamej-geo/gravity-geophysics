@@ -1,7 +1,7 @@
 # ***Residual and regional anomaly in gravity or magnetic methods***
 ## Cálculo de anomalía regional y residual mediante python
 ***
-<img src="files/rd.PNG" width="250"> <img src="files/res.PNG" width="250">
+<img src="files/rd.PNG" width="300"> <img src="files/res.PNG" width="300">
 
 Este código pretende facilitar el calculo de la residual y la regional usando software libre, como lo es Python.
 
