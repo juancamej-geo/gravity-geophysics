@@ -5,6 +5,10 @@
 
 Este código pretende facilitar el calculo de la residual y la regional usando software libre, como lo es Python.
 
+# **¿Como Funciona?**
+
+Este script lee un archivo excel, el cual debe tener 3 columnas llamadas 'x', 'y', 'z', no importa el orden el cual puede conter una malla de puntos, o puntos desordenados que posteriormente el programa va a interpolar para generar un grafico de previsualización. El programa genera perfiles horizontales o verticales, hace una regresion polinomial para ajustar una ecuación al perfil y ademas genera la ecuación del regional. El programa entrega dos graficos, uno con la anomalía residual y otro con la anomalia regional.
+
 ***
 Algunos requisitos:
 ```
