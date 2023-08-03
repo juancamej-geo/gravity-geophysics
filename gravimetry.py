@@ -3,7 +3,7 @@ import numpy as np
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 from tkinter import filedialog
-import os, warnings, time
+import os, warnings
 warnings.simplefilter('ignore',np.RankWarning)
 
 
@@ -24,18 +24,18 @@ def mainmenu():
 
 def leer(inb):
     global xi,yi,zi
-    if type(inb)== type('hi'):
+    if type(inb)== type('esto es un string'):
         df = pd.read_excel(inb)
         print('ok')
     else:
-            df=inb
-
+        df=inb
+    
     x = df['x'].values
     y = df['y'].values
     z = df['z'].values
 
-    xi = np.linspace(min(x), max(x), 100)
-    yi = np.linspace(min(y), max(y), 100)
+    xi = np.linspace(min(x), max(x), 50)
+    yi = np.linspace(min(y), max(y), 50)
     xi, yi = np.meshgrid(xi, yi)
 
     zi = griddata((x, y), z, (xi, yi), method='cubic')
@@ -112,9 +112,21 @@ def GeneraResidual():
                 
             else:
                 continue
-    
-    
-    return leer(dfres),leer(dfreg),dfreg.to_excel(ruta[:-5]+'-Regional.xlsx',index=False) , dfres.to_excel(ruta[:-5]+'-Residual.xlsx',index=False)
+    os.system('cls')
+    while True:
+        qest= input('Desea guardar los datos de residual y regional en un excel?[s/n]\n')
+        match qest:
+            case 's':
+                dfreg.to_excel(ruta[:-5]+'-Regional.xlsx',index=False)
+                dfres.to_excel(ruta[:-5]+'-Residual.xlsx',index=False)
+                break
+            case 'n':
+                print('r')
+            case _:
+                os.system('cls')
+                input('Ingrese una opción válida')
+
+    #return leer(dfres),leer(dfreg),dfreg.to_excel(ruta[:-5]+'-Regional.xlsx',index=False) , dfres.to_excel(ruta[:-5]+'-Residual.xlsx',index=False)
 """         
     m= dfres['x'].values
     n=dfres['y'].values
@@ -127,7 +139,7 @@ def GeneraResidual():
     plt.contourf(mi,ni,oi, cmap='RdYlBu'), plt.show()
  """
 
-#esto es un test
+#####
 if __name__ =='__main__':
     while True:
         mainmenu()
