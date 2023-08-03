@@ -6,6 +6,19 @@ from tkinter import filedialog
 import os, warnings
 warnings.simplefilter('ignore',np.RankWarning)
 
+def grafica(x2, title):
+    df= x2
+    x = df['x'].values
+    y = df['y'].values
+    z = df['z'].values
+
+    xi = np.linspace(min(x), max(x), 50)
+    yi = np.linspace(min(y), max(y), 50)
+    xi, yi = np.meshgrid(xi, yi)
+    zi = griddata((x, y), z, (xi, yi), method='cubic')
+                
+    plt.contourf(xi, yi, zi, levels=20, cmap='RdYlBu'),plt.colorbar().set_label('mGal'),plt.xlabel('X'), plt.ylabel('Y')
+    plt.title(title), plt.show()
 
 def mainmenu():
     global ruta
@@ -15,11 +28,14 @@ def mainmenu():
             ruta= filedialog.askopenfile(title='Ingrese el archivo', initialdir='C:/Users/PC/Documents',filetypes=[('Archivos Excel','.xlsx')]).name
             leer(ruta)
         case '2':
-            input('-'*50+'\nDesarrollado por: Juan C. Mejía\nSoftware de uso académico\nPara más información consulte al correo juan.601823945@ucaldas.edu.co\n'+'-'*50)
+            input('-'*50+'\nDesarrollado por: Juan C. Mejía\nSoftware de uso académico\nPara más información consulte al correo juan.601823945@ucaldas.edu.co\n'+'-'*50+'\n')
             os.system('cls')
+            mainmenu()
         case _:
+            os.system('cls')
             input('Ingrese 1 o 2\n')
             os.system('cls')
+            mainmenu()
 
 
 def leer(inb):
@@ -112,6 +128,8 @@ def GeneraResidual():
                 
             else:
                 continue
+    grafica(dfreg, 'Mapa de anomalía Regional')
+    grafica(dfres, 'Mapa de anomalía Residual')
     os.system('cls')
     while True:
         qest= input('Desea guardar los datos de residual y regional en un excel?[s/n]\n')
@@ -121,25 +139,13 @@ def GeneraResidual():
                 dfres.to_excel(ruta[:-5]+'-Residual.xlsx',index=False)
                 break
             case 'n':
-                print('r')
+                print('Finalizó el programa')
+                break
             case _:
                 os.system('cls')
                 input('Ingrese una opción válida')
 
-    #return leer(dfres),leer(dfreg),dfreg.to_excel(ruta[:-5]+'-Regional.xlsx',index=False) , dfres.to_excel(ruta[:-5]+'-Residual.xlsx',index=False)
-"""         
-    m= dfres['x'].values
-    n=dfres['y'].values
-    o=dfres['z'].values
-    mi= np.linspace(min(m),max(m),100)
-    ni= np.linspace(min(n),max(n),100)
-    o= np.linspace(min(o),max(o),100)
-    mi,ni= np.meshgrid(mi,ni)
-    oi= griddata((m,n),o,(mi,ni),method='cubic')
-    plt.contourf(mi,ni,oi, cmap='RdYlBu'), plt.show()
- """
-
-#####
+#########
 if __name__ =='__main__':
     while True:
         mainmenu()
