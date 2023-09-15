@@ -3,6 +3,8 @@
 ***
 <img src="files/rd.PNG" width="300"> <img src="files/res.PNG" width="300">
 
+*Los datos ingresados no son propiedad del autor*
+
 Este código pretende facilitar el calculo de la residual y la regional usando software libre, como lo es Python.
 
 # **¿Como Funciona?**
@@ -19,4 +21,8 @@ scipy==1.9.1
 matplotlib==3.5.1
 matplotlib-inline==0.1.6
 ```
+***
+# ¿Como Citar? (Cite this article)
+Mejía, Juan (2023). PROGRAMACIÓN APLICADA a LA GEOFÍSICA: PYTHON PARA MÉTODOS GRAVIMÉTRICOS, UNA ALTERNATIVA ÉTICA a LOS. . . ResearchGate. https://doi.org/10.13140/RG.2.2.26663.11687
+
 ***
