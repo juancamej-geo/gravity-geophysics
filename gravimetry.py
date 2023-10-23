@@ -12,10 +12,10 @@ def grafica(x2, title):
     y = df['y'].values
     z = df['z'].values
 
-    xi = np.linspace(min(x), max(x), 50)
-    yi = np.linspace(min(y), max(y), 50)
+    xi = np.linspace(min(x), max(x), 25)
+    yi = np.linspace(min(y), max(y), 25)
     xi, yi = np.meshgrid(xi, yi)
-    zi = griddata((x, y), z, (xi, yi), method='cubic')
+    zi = griddata((x, y), z, (xi, yi), method='cubic' )
                 
     plt.contourf(xi, yi, zi, levels=20, cmap='RdYlBu'),plt.colorbar().set_label('mGal'),plt.xlabel('X'), plt.ylabel('Y')
     plt.title(title), plt.show()
